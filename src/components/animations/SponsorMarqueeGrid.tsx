@@ -88,18 +88,20 @@ function SponsorTile({
   )
 }
 
+const TILE_WIDTH = 140
+const PIXELS_PER_SECOND = 50
+
 function MarqueeRow({
   sponsors,
   direction,
-  speed,
   rowDelay,
 }: {
   sponsors: Array<{ name: string; imagePath: string }>
   direction: 'left' | 'right'
-  speed: number
   rowDelay: number
 }) {
   const animName = direction === 'left' ? 'marqueeLeft' : 'marqueeRight'
+  const duration = Math.max((sponsors.length * TILE_WIDTH) / PIXELS_PER_SECOND, 5)
 
   return (
     <motion.div
@@ -113,7 +115,7 @@ function MarqueeRow({
       <div
         className="flex shrink-0"
         style={{
-          animation: `${animName} ${speed}s linear infinite`,
+          animation: `${animName} ${duration}s linear infinite`,
         }}
       >
         {sponsors.map((sp, i) => (
@@ -127,7 +129,7 @@ function MarqueeRow({
       <div
         className="flex shrink-0"
         style={{
-          animation: `${animName} ${speed}s linear infinite`,
+          animation: `${animName} ${duration}s linear infinite`,
         }}
       >
         {sponsors.map((sp, i) => (
@@ -234,7 +236,6 @@ export function SponsorMarqueeGrid({
             key={i}
             sponsors={rowSponsors}
             direction={i % 2 === 0 ? 'left' : 'right'}
-            speed={25}
             rowDelay={0.3 + i * 0.12}
           />
         ))}
