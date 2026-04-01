@@ -15,6 +15,25 @@ app.commandLine.appendSwitch('ignore-gpu-blocklist')
 app.commandLine.appendSwitch('enable-gpu-rasterization')
 app.commandLine.appendSwitch('enable-zero-copy')
 
+function forceSquareCorners(win: BrowserWindow): void {
+  if (process.platform !== 'win32') return
+  try {
+    const koffi = require('koffi')
+    const dwmapi = koffi.load('dwmapi.dll')
+    const DwmSetWindowAttribute = dwmapi.func(
+      'long __stdcall DwmSetWindowAttribute(void *hwnd, uint32_t dwAttribute, void *pvAttribute, uint32_t cbAttribute)',
+    )
+    const DWMWA_WINDOW_CORNER_PREFERENCE = 33
+    const DWMWCP_DONOTROUND = 1
+    const hwnd = win.getNativeWindowHandle()
+    const pref = Buffer.alloc(4)
+    pref.writeUInt32LE(DWMWCP_DONOTROUND)
+    DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, pref, 4)
+  } catch {
+    // koffi not available or not on Windows 11 — silently ignore
+  }
+}
+
 let dataEntryWindow: BrowserWindow | null = null
 let controlPanelWindow: BrowserWindow | null = null
 let presentationWindow: BrowserWindow | null = null
@@ -116,6 +135,7 @@ function createPresentationWindow(): BrowserWindow {
     alwaysOnTop: false,
     webPreferences: sharedWebPrefs(),
   })
+  forceSquareCorners(win)
   loadRenderer(win, 'presentation')
   win.on('closed', () => {
     if (presentationWindow === win) {
