@@ -28,7 +28,7 @@ const SPONSOR_COMPONENTS: Record<
   "one-row": SponsorOneRow,
   "tiered-rows": SponsorTieredRows,
   "marquee-grid": SponsorMarqueeGrid,
-  "fullscreen": SponsorFullscreen,
+  fullscreen: SponsorFullscreen,
 };
 
 function pickSponsorComponent(
@@ -70,6 +70,7 @@ export default function Presentation() {
   const [playerPayload, setPlayerPayload] = useState<{
     player: { name: string; imagePath: string };
     club: { name: string; logoPath: string; color: string } | null;
+    capNumber?: number;
   } | null>(null);
   const [playerVisible, setPlayerVisible] = useState(false);
 
@@ -133,12 +134,15 @@ export default function Presentation() {
           const player = data.players.find((p) => p.id === command.playerId);
           if (!player) break;
           const club = data.clubs.find((c) => c.id === player.clubId);
+          const capNumber =
+            data.capNumbers?.[player.clubId]?.[command.playerId];
           clearAll();
           setPlayerPayload({
             player: { name: player.name, imagePath: player.imagePath },
             club: club
               ? { name: club.name, logoPath: club.logoPath, color: club.color }
               : null,
+            capNumber,
           });
           setPlayerVisible(true);
           activePlayerIdRef.current = command.playerId;
@@ -166,9 +170,17 @@ export default function Presentation() {
           if (!homeClub || !awayClub) break;
           clearAll();
           setMatchupPayload({
-            home: { name: homeClub.name, logoPath: homeClub.logoPath, color: homeClub.color },
-            away: { name: awayClub.name, logoPath: awayClub.logoPath, color: awayClub.color },
-            label: command.matchLabel || 'Match',
+            home: {
+              name: homeClub.name,
+              logoPath: homeClub.logoPath,
+              color: homeClub.color,
+            },
+            away: {
+              name: awayClub.name,
+              logoPath: awayClub.logoPath,
+              color: awayClub.color,
+            },
+            label: command.matchLabel || "Match",
           });
           setMatchupVisible(true);
           break;
@@ -278,7 +290,12 @@ export default function Presentation() {
     return unsub;
   }, [handleCommand]);
 
-  const isIdle = !playerVisible && !sponsorsVisible && !clubVisible && !matchupVisible && !officialsVisible;
+  const isIdle =
+    !playerVisible &&
+    !sponsorsVisible &&
+    !clubVisible &&
+    !matchupVisible &&
+    !officialsVisible;
 
   return (
     <div
@@ -299,6 +316,7 @@ export default function Presentation() {
           <PlayerIntro
             player={playerPayload.player}
             club={playerPayload.club}
+            capNumber={playerPayload.capNumber}
             isVisible={playerVisible}
           />
         </div>

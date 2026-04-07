@@ -9,6 +9,7 @@ import {
 export interface PlayerIntroProps {
   player: { name: string; imagePath: string } | null
   club: { name: string; logoPath: string; color: string } | null
+  capNumber?: number
   isVisible: boolean
   onComplete?: () => void
 }
@@ -186,9 +187,20 @@ const clubTextVariants: Variants = {
   exit: { opacity: 0, transition: { duration: 0.1 } },
 }
 
+const capNumberVariants: Variants = {
+  initial: { opacity: 0, x: 20 },
+  animate: {
+    opacity: 1,
+    x: 0,
+    transition: { delay: 0.75, duration: 0.4, ease: easeOutExpo },
+  },
+  exit: { opacity: 0, x: 10, transition: { duration: 0.15 } },
+}
+
 export function PlayerIntro({
   player,
   club,
+  capNumber,
   isVisible,
   onComplete,
 }: PlayerIntroProps) {
@@ -393,8 +405,7 @@ export function PlayerIntro({
                   {club?.name ? (
                     <motion.p
                       className="mt-1 truncate text-[10px] font-semibold uppercase tracking-[0.2em]"
-                      style={{ color: clubTextColor, opacity: 0.75 }}
-                      style={{ willChange: 'opacity' }}
+                      style={{ color: clubTextColor, willChange: 'opacity', opacity: 0.75 }}
                       variants={clubTextVariants}
                       initial="initial"
                       animate="animate"
@@ -404,6 +415,29 @@ export function PlayerIntro({
                     </motion.p>
                   ) : null}
                 </div>
+
+                {capNumber != null ? (
+                  <motion.div
+                    className="mr-5 flex shrink-0 items-center justify-center"
+                    style={{ willChange: 'transform, opacity' }}
+                    variants={capNumberVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                  >
+                    <span
+                      className="text-[38px] font-black leading-none tracking-tight"
+                      style={{
+                        fontFamily:
+                          'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+                        color: accentLight,
+                        textShadow: `0 0 20px ${clubColor}80, 0 1px 3px rgba(0,0,0,0.5)`,
+                      }}
+                    >
+                      {capNumber}
+                    </span>
+                  </motion.div>
+                ) : null}
               </div>
 
               {/* Top edge highlight */}
